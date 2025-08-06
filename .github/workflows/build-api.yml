@@ -12,6 +12,7 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   API_PROJECT_PATH: './src/WebApi.sln'
+  API_PUBLISH_PROJECT: './src/api/WebApi.csproj'
   BUILD_CONFIGURATION: 'Release'
 
 jobs:
@@ -44,7 +45,7 @@ jobs:
 
       - name: Publish application
         run: |
-          dotnet publish ${{ env.API_PROJECT_PATH }} \
+          dotnet publish ${{ env.API_PUBLISH_PROJECT }} \
             --configuration ${{ env.BUILD_CONFIGURATION }} \
             --output ./publish \
             --no-build \
