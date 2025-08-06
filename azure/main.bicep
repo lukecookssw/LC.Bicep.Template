@@ -26,7 +26,7 @@ module appServicePlanModule 'modules/app-service-plan.bicep' = {
   name: 'appServicePlanDeployment'
   scope: resourceGroup(fullResourceGroupName)
   params: {
-    name: 'LC-Api-Plan.${environment}'
+    name: 'LC-Api-Plan-${environment}'
   }
 }
 
