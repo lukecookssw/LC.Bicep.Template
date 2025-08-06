@@ -25,6 +25,9 @@ module resourceGroupModule 'modules/resource-group.bicep' = {
 module appServicePlanModule 'modules/app-service-plan.bicep' = {
   name: 'appServicePlanDeployment'
   scope: resourceGroup(fullResourceGroupName)
+  dependsOn: [
+    resourceGroupModule
+  ]
   params: {
     name: 'LC-Api-Plan-${environment}'
   }
@@ -35,6 +38,9 @@ module appServicePlanModule 'modules/app-service-plan.bicep' = {
 module appServiceModule 'modules/app-service.bicep' = {
   name: 'appServiceDeployment'
   scope: resourceGroup(fullResourceGroupName)
+  dependsOn: [
+    resourceGroupModule
+  ]
   params: {
     name: 'LC-Api-${environment}'
     appServicePlanId: appServicePlanModule.outputs.appServicePlanId
