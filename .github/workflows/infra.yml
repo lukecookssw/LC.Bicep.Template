@@ -21,4 +21,4 @@ jobs:
           inlineScript: |
             az deployment sub create \
               --template-file ./azure/main.bicep \
-              --parameters @azure/dev_parameters.json
+              --parameters ./azure/dev_parameters.json
