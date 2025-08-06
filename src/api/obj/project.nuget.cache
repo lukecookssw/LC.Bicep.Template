@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "mym219fC+Ek=",
+  "success": true,
+  "projectFilePath": "C:\\repos\\_play\\LC.Bicep.Template\\src\\api\\WebApi.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\LukeCook\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.7\\microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
+    "C:\\Users\\LukeCook\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
