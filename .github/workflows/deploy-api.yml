@@ -1,0 +1,91 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'Dev'
+        type: choice
+        options:
+        - Dev
+        - Staging
+        - Production
+      build_run_id:
+        description: 'Build workflow run ID (leave empty for latest successful build)'
+        required: false
+        type: string
+
+env:
+  AZURE_WEBAPP_PACKAGE_PATH: './api-package'
+
+jobs:
+  deploy_api:
+    name: Deploy API to Azure
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: api-package
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          run-id: ${{ inputs.build_run_id || '' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract deployment package
+        run: |
+          cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          unzip -q api-package.zip
+          rm api-package.zip
+          ls -la
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'LC-Api-${{ inputs.environment }}'
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      - name: Verify deployment
+        run: |
+          APP_URL="https://LC-Api-${{ inputs.environment }}.azurewebsites.net"
+          echo "Checking if app is responding at: $APP_URL"
+          
+          # Wait a moment for the app to start
+          sleep 30
+          
+          # Check if the app responds (retry up to 5 times)
+          for i in {1..5}; do
+            if curl -f -s "$APP_URL" > /dev/null; then
+              echo "✅ App is responding successfully!"
+              echo "🌐 App URL: $APP_URL"
+              break
+            else
+              echo "⏳ Attempt $i/5: App not responding yet, waiting 30 seconds..."
+              sleep 30
+            fi
+          done
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **App Service:** LC-Api-${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **App URL:** https://LC-Api-${{ inputs.environment }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Run ID:** ${{ inputs.build_run_id || 'Latest successful build' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Test the deployed application" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor application logs in Azure Portal" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify all endpoints are working correctly" >> $GITHUB_STEP_SUMMARY

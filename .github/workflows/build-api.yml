@@ -1,0 +1,73 @@
+name: Build API
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [ main ]
+  #   paths: [ 'src/api/**' ]
+  # pull_request:
+  #   branches: [ main ]
+  #   paths: [ 'src/api/**' ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  API_PROJECT_PATH: './src/api'
+  BUILD_CONFIGURATION: 'Release'
+
+jobs:
+  build_api:
+    name: Build and Package API
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.API_PROJECT_PATH }}
+
+      - name: Build application
+        run: dotnet build ${{ env.API_PROJECT_PATH }} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+
+      - name: Run tests (if any exist)
+        run: |
+          if [ -d "${{ env.API_PROJECT_PATH }}.Tests" ]; then
+            dotnet test ${{ env.API_PROJECT_PATH }}.Tests --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal
+          else
+            echo "No test projects found, skipping tests"
+          fi
+
+      - name: Publish application
+        run: |
+          dotnet publish ${{ env.API_PROJECT_PATH }} \
+            --configuration ${{ env.BUILD_CONFIGURATION }} \
+            --output ./publish \
+            --no-build \
+            --self-contained false
+
+      - name: Create deployment package
+        run: |
+          cd ./publish
+          zip -r ../api-package.zip .
+          cd ..
+          ls -la api-package.zip
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-package
+          path: api-package.zip
+          retention-days: 30
+
+      - name: Upload publish folder (for debugging)
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-publish-files
+          path: ./publish
+          retention-days: 7
+    
