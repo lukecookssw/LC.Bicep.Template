@@ -1,11 +1,29 @@
 name: Deploy Azure Infrastructure
 
 on:
-  workflow_dispatch:
   workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'Dev'
+        type: choice
+        options:
+        - Dev
+        - Staging
+        - Production
 
 jobs:
-  deploy_dev:
+  deploy_infrastructure:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,5 +41,5 @@ jobs:
             az deployment sub create \
               --location australiaeast \
               --template-file ./azure/main.bicep \
-              --parameters @azure/dev_parameters.json \
+              --parameters environment=${{ inputs.environment }} \
               --verbose

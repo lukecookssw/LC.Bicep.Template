@@ -2,6 +2,14 @@ name: Deploy API
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
   workflow_dispatch:
     inputs:
       environment:
@@ -41,15 +49,6 @@ jobs:
         with:
           name: api-package
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-          run-id: ${{ inputs.build_run_id || '' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract deployment package
-        run: |
-          cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-          unzip -q api-package.zip
-          rm api-package.zip
-          ls -la
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
