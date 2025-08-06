@@ -20,5 +20,6 @@ jobs:
         with:
           inlineScript: |
             az deployment sub create \
+              --location australiaeast \
               --template-file ./azure/main.bicep \
-              --parameters ./azure/dev_parameters.json
+              --parameters @azure/dev_parameters.json
