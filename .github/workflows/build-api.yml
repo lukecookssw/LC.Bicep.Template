@@ -2,6 +2,7 @@ name: Build API
 
 on:
   workflow_dispatch:
+  workflow_call:
   # push:
   #   branches: [ main ]
   #   paths: [ 'src/api/**' ]
@@ -62,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-package
-          path: api-package.zip
+          path: ./publish
           retention-days: 30
 
       - name: Upload publish folder (for debugging)

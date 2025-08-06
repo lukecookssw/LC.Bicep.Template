@@ -1,0 +1,16 @@
+name: Main Workflow
+
+on:
+    workflow_dispatch:
+
+jobs:
+    infra:
+        uses: ./.github/workflows/infra.yml
+
+    build_api:
+        needs: infra
+        uses: ./.github/workflows/build-api.yml
+
+    deploy_api:
+        needs: build_api
+        uses: ./.github/workflows/deploy-api.yml
