@@ -61,7 +61,7 @@ jobs:
         run: |
           chmod +x ./azure/scripts/grant-db-owner.sh
           ./azure/scripts/grant-db-owner.sh \
-            "LC.WebApi.Dev" \
+            "LC.Api.Dev" \
             "WebApiSqlServer-${{ inputs.environment }}" \
             "WebApiDb" \
             "WebApiAppService-${{ inputs.environment }}"
