@@ -71,7 +71,6 @@ module sqlServerModule 'modules/sql-server.bicep' = {
   ]
   params: {
     environment: environment
-    userAssignedIdentityResourceId: appServiceModule.outputs.appServicePrincipalId
   }
 }
 

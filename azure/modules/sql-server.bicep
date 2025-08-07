@@ -1,12 +1,7 @@
 @description('Dev, Staging, Production')
 param environment string
 
-
-@description('Resource ID of the User Assigned Managed Identity')
-param userAssignedIdentityResourceId string
-
 var location string = resourceGroup().location
-
 
 resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
   name: 'WebApiSqlServer-${environment}'
@@ -19,10 +14,7 @@ resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
     publicNetworkAccess: 'Enabled'
   }
   identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${userAssignedIdentityResourceId}': {}
-    }
+    type: 'SystemAssigned'
   }
 }
 
