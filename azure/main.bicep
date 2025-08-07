@@ -62,32 +62,32 @@ module keyVaultModule 'modules/key-vault.bicep' = {
 }
 
 // Create the SQL Server in the resource group
-@description('SQL Server for the API database')
-module sqlServerModule 'modules/sql-server.bicep' = {
-  name: 'sqlServerDeployment'
-  scope: resourceGroup(fullResourceGroupName)
-  dependsOn: [
-    resourceGroupModule
-  ]
-  params: {
-    environment: environment
-    userAssignedIdentityResourceId: appServiceModule.outputs.appServicePrincipalId
-  }
-}
+// @description('SQL Server for the API database')
+// module sqlServerModule 'modules/sql-server.bicep' = {
+//   name: 'sqlServerDeployment'
+//   scope: resourceGroup(fullResourceGroupName)
+//   dependsOn: [
+//     resourceGroupModule
+//   ]
+//   params: {
+//     environment: environment
+//     userAssignedIdentityResourceId: appServiceModule.outputs.appServicePrincipalId
+//   }
+// }
 
-// add connection string to Key Vault
-@description('Store SQL connection string in Key Vault')
-module keyVaultSecretModule 'modules/keyvault-secret.bicep' = {
-  name: 'keyVaultSecretDeployment'
-  scope: resourceGroup(fullResourceGroupName)
-  dependsOn: [
-    resourceGroupModule
-    sqlServerModule
-    keyVaultModule
-  ]
-  params: {
-    keyVaultName: keyVaultModule.outputs.keyVaultName
-    secretName: 'SqlConnectionString'
-    secretValue: sqlServerModule.outputs.sqlConnectionString
-  }
-}
+// // add connection string to Key Vault
+// @description('Store SQL connection string in Key Vault')
+// module keyVaultSecretModule 'modules/keyvault-secret.bicep' = {
+//   name: 'keyVaultSecretDeployment'
+//   scope: resourceGroup(fullResourceGroupName)
+//   dependsOn: [
+//     resourceGroupModule
+//     sqlServerModule
+//     keyVaultModule
+//   ]
+//   params: {
+//     keyVaultName: keyVaultModule.outputs.keyVaultName
+//     secretName: 'SqlConnectionString'
+//     secretValue: sqlServerModule.outputs.sqlConnectionString
+//   }
+// }
