@@ -71,6 +71,6 @@ jobs:
         run: |
           pwsh ./azure/scripts/grant-db-owner.ps1 `
             -ResourceGroup "LC.Api.${{ inputs.environment }}" `
-            -SqlServerName "WebApiSqlServer-${{ inputs.environment }}" `
+            -SqlServerName "WebApiSqlServer-${{ inputs.environment }}.database.windows.net" `
             -DatabaseName "WebApiDb" `
             -PrincipalName "LC-Api-${{ inputs.environment }}"
