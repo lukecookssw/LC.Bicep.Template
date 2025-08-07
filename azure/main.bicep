@@ -71,6 +71,7 @@ module sqlServerModule 'modules/sql-server.bicep' = {
   ]
   params: {
     environment: environment
+    appServicePrincipalId: appServiceModule.outputs.appServicePrincipalId
   }
 }
 
@@ -86,7 +87,7 @@ module keyVaultSecretModule 'modules/keyvault-secret.bicep' = {
   ]
   params: {
     keyVaultName: keyVaultModule.outputs.keyVaultName
-    secretName: 'SqlConnectionString'
+    secretName: 'ConnectionStrings__DefaultConnection'
     secretValue: sqlServerModule.outputs.sqlConnectionString
   }
 }

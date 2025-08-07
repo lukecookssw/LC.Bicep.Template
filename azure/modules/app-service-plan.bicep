@@ -7,8 +7,6 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
   sku: {
     name: 'B1'
     tier: 'Basic'
-    size: 'B1'
-    capacity: 1
   }
   kind: 'linux'
   properties: {

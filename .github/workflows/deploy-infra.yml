@@ -43,3 +43,25 @@ jobs:
               --template-file ./azure/main.bicep \
               --parameters environment=${{ inputs.environment }} \
               --verbose
+  grant-db-owner:
+    runs-on: ubuntu-latest
+    needs: deploy_infrastructure
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          allow-no-subscriptions: true
+
+      - name: Run SQL Script
+        run: |
+          chmod +x ./azure/scripts/grant-db-owner.sh
+          ./azure/scripts/grant-db-owner.sh \
+            "LC.WebApi.Dev" \
+            "WebApiSqlServer-${{ inputs.environment }}" \
+            "WebApiDb" \
+            "WebApiAppService-${{ inputs.environment }}"

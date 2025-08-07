@@ -1,6 +1,8 @@
 @description('Dev, Staging, Production')
 param environment string
 
+param appServicePrincipalId string
+
 var location string = resourceGroup().location
 
 resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
@@ -13,9 +15,7 @@ resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
+
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2024-11-01-preview' = {
@@ -25,6 +25,18 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2024-11-01-preview' = {
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
     maxSizeBytes: 2147483648 // 2 GB
+  }
+}
+
+// Add the managed identity as a SQL Server AAD Administrator
+resource aadAdmin 'Microsoft.Sql/servers/administrators@2024-11-01-preview' = {
+  parent: sqlServer
+  name: 'ActiveDirectory'
+  properties: {
+    administratorType: 'ActiveDirectory'
+    login: appServicePrincipalId
+    sid: appServicePrincipalId
+    tenantId: subscription().tenantId
   }
 }
 

@@ -1,12 +1,26 @@
+using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.Endpoints;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// If in production, load secrets from Azure Key Vault
+if (builder.Environment.IsProduction())
+{
+	var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
+	if (!string.IsNullOrEmpty(keyVaultUri))
+	{
+		var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+		builder.Configuration.AddAzureKeyVault(client, new KeyVaultSecretManager());
+	}
+}
 
 // add EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>

@@ -7,6 +7,10 @@ resource appService 'Microsoft.Web/sites@2024-11-01' = {
   properties: {
     serverFarmId: appServicePlanId
     httpsOnly: true
+    siteConfig: {
+      linuxFxVersion: 'DOTNETCORE|9.0'
+      alwaysOn: true
+    }
   }
   identity: {
     type: 'SystemAssigned'
