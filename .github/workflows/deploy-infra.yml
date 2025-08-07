@@ -55,6 +55,9 @@ jobs:
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
+      - name: Install SQL extension
+        run: az extension add --name sql --upgrade
+
       - name: Azure Login
         uses: azure/login@v1
         with:
