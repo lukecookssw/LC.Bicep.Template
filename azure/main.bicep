@@ -87,7 +87,7 @@ module keyVaultSecretModule 'modules/keyvault-secret.bicep' = {
   ]
   params: {
     keyVaultName: keyVaultModule.outputs.keyVaultName
-    secretName: 'ConnectionStrings__DefaultConnection'
+    secretName: 'ConnectionStrings--DefaultConnection'
     secretValue: sqlServerModule.outputs.sqlConnectionString
   }
 }
