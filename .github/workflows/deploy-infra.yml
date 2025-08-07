@@ -51,6 +51,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install latest Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
       - name: Azure Login
         uses: azure/login@v1
         with:
