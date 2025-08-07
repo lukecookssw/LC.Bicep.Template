@@ -5,11 +5,14 @@ param(
   [string]$PrincipalName
 )
 
+Write-Host "Granting db_owner role to $PrincipalName on $DatabaseName in $SqlServerName..."
+
+Write-Host "Installing required PowerShell modules..."
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name SqlServer -AllowClobber -Scope CurrentUser -Confirm:$false
 Install-Module -Name Az.Accounts -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
 
-
+Write-Host "Getting principal ID..."
 # Get the App Service's principal ID (the managed identity)
 $principalId = az webapp identity show `
   --name $PrincipalName `
