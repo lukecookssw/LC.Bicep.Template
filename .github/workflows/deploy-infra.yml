@@ -64,4 +64,4 @@ jobs:
             "LC.Api.Dev" \
             "WebApiSqlServer-${{ inputs.environment }}" \
             "WebApiDb" \
-            "WebApiAppService-${{ inputs.environment }}"
+            "LC-Api-${{ inputs.environment }}"
