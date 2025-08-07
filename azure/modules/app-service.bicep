@@ -8,6 +8,10 @@ resource appService 'Microsoft.Web/sites@2024-11-01' = {
     serverFarmId: appServicePlanId
     httpsOnly: true
   }
+  identity: {
+    type: 'SystemAssigned'
+  }
 }
 output appServiceId string = appService.id
 output appServiceUrl string = 'https://${appService.name}.azurewebsites.net'
+output appServicePrincipalId string = appService.identity.principalId
