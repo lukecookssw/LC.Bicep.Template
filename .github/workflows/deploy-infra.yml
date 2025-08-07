@@ -70,7 +70,7 @@ jobs:
         shell: pwsh
         run: |
           pwsh ./azure/scripts/grant-db-owner.ps1 `
-            -ResourceGroupName "LC.Api.${{ inputs.environment }}" `
+            -ResourceGroup "LC.Api.${{ inputs.environment }}" `
             -SqlServerName "WebApiSqlServer-${{ inputs.environment }}" `
             -DatabaseName "WebApiDb" `
             -PrincipalName "LC-Api-${{ inputs.environment }}"
