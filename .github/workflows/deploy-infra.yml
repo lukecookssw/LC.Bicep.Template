@@ -51,12 +51,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install latest Azure CLI
+      - name: Install PowerShell
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Install SQL extension
-        run: az extension add --name sql --upgrade
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
 
       - name: Azure Login
         uses: azure/login@v1
@@ -64,11 +66,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      - name: Run SQL Script
+      - name: Run PowerShell Script
+        shell: pwsh
         run: |
-          chmod +x ./azure/scripts/grant-db-owner.sh
-          ./azure/scripts/grant-db-owner.sh \
-            "LC.Api.Dev" \
-            "WebApiSqlServer-${{ inputs.environment }}" \
-            "WebApiDb" \
-            "LC-Api-${{ inputs.environment }}"
+          pwsh ./azure/scripts/grant-db-owner.ps1 `
+            -ResourceGroupName "LC.Api.${{ inputs.environment }}" `
+            -SqlServerName "WebApiSqlServer-${{ inputs.environment }}" `
+            -DatabaseName "WebApiDb" `
+            -PrincipalName "LC-Api-${{ inputs.environment }}"
