@@ -13,7 +13,7 @@ resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
   location: location
   properties: {
     administratorLogin: 'sqlAdmin'
-    administratorLoginPassword: uniqueString(resourceGroup().id) // TODO: Replace with a secure password https://fnbk.medium.com/generating-secure-random-passwords-in-azure-bicep-templates-755e962ec639
+    administratorLoginPassword: 'sqlAdminPassword' // TODO: Replace with a secure password https://fnbk.medium.com/generating-secure-random-passwords-in-azure-bicep-templates-755e962ec639
     version: '12.0'
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
