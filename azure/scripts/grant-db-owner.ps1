@@ -39,6 +39,7 @@ try
                     -ErrorAction Stop
 }
 catch {
-    Write-Error "Error: Failed to execute SQL commands on database '$DatabaseName'."
-    exit 1
+  Write-Error "Error: Failed to execute SQL commands on database '$DatabaseName'."
+  Write-Error "Exception: $($_.Exception.Message)"
+  exit 1
 }
