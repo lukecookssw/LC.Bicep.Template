@@ -15,7 +15,15 @@ resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
   }
+}
 
+resource databaseFirewall 'Microsoft.Sql/servers/firewallRules@2024-11-01-preview' = {
+  parent: sqlServer
+  name: 'AllowAllWindowsAzureIps'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2024-11-01-preview' = {
