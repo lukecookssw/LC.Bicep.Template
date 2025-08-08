@@ -34,15 +34,14 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # - name: Deploy Bicep file
-      #   uses: azure/cli@v2
-      #   with:
-      #     inlineScript: |
-      #       az deployment sub create \
-      #         --location australiaeast \
-      #         --template-file ./azure/main.bicep \
-      #         --parameters environment=${{ inputs.environment }} \
-      #         --verbose
+      - name: Deploy Bicep file
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --location australiaeast \
+              --template-file ./azure/main.bicep \
+              --parameters environment=${{ inputs.environment }}
   grant-db-owner:
     runs-on: ubuntu-latest
     needs: deploy_infrastructure
