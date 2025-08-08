@@ -25,9 +25,21 @@ if (-not $principalId) {
   exit 1
 }
 
+Write-Host "Getting access token for SQL Server..."
+# Get access token for SQL Server using the current Azure CLI session
+$accessToken = az account get-access-token --resource https://database.windows.net/ --query accessToken --output tsv
+
+if (-not $accessToken) {
+  Write-Error "Error: Could not get access token for SQL Server."
+  exit 1
+}
+
 # Define the SQL commands as a string
 $sqlCommands = @"
-CREATE USER [$PrincipalName] FROM EXTERNAL PROVIDER;
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$PrincipalName')
+BEGIN
+    CREATE USER [$PrincipalName] FROM EXTERNAL PROVIDER;
+END
 ALTER ROLE db_owner ADD MEMBER [$PrincipalName];
 "@
 
@@ -35,10 +47,11 @@ try
 {
   Invoke-Sqlcmd -ServerInstance $SqlServerName `
                     -Database $DatabaseName `
-                    -Username 'sqlAdmin' `
-                    -Password 'sqlPW!2@23iuhFDFDaf23987@#%1' `
                     -Query $sqlCommands `
+                    -AccessToken $accessToken `
                     -ErrorAction Stop
+  
+  Write-Host "Successfully granted db_owner role to $PrincipalName"
 }
 catch {
   Write-Error "Error: Failed to execute SQL commands on database '$DatabaseName'."
