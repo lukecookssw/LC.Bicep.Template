@@ -35,6 +35,8 @@ try
 {
   Invoke-Sqlcmd -ServerInstance $SqlServerName `
                     -Database $DatabaseName `
+                    -Username 'sqlAdmin' `
+                    -Password 'sqlPW!2@23iuhFDFDaf23987@#%1'
                     -Query $sqlCommands `
                     -ErrorAction Stop
 }
