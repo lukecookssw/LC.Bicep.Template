@@ -42,8 +42,8 @@ resource aadAdmin 'Microsoft.Sql/servers/administrators@2024-11-01-preview' = {
   name: 'ActiveDirectory'
   properties: {
     administratorType: 'ActiveDirectory'
-    login: appServicePrincipalId
-    sid: appServicePrincipalId
+    login: 'github-deployment-sp'
+    sid: '83a26b28-88cd-430b-b09b-e0198c5d6a33'
     tenantId: subscription().tenantId
   }
 }
