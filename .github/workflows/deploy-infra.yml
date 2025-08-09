@@ -42,10 +42,26 @@ jobs:
               --location australiaeast \
               --template-file ./azure/main.bicep \
               --parameters environment=${{ inputs.environment }}
+     
+      - name: Configure SQL Server Azure AD Admin and Directory Reader
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            # Get the SQL Server's managed identity
+            SQL_SERVER_PRINCIPAL_ID=$(az sql server show \
+              --name "WebApiSqlServer-${{ inputs.environment }}" \
+              --resource-group "LC.Api.${{ inputs.environment }}" \
+              --query identity.principalId \
+              --output tsv)
+            
+            # Grant Directory Reader role to SQL Server's managed identity
+            az role assignment create \
+              --assignee $SQL_SERVER_PRINCIPAL_ID \
+              --role "Directory Readers" \
+              --scope /
   grant-db-owner:
     runs-on: ubuntu-latest
     needs: deploy_infrastructure
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
