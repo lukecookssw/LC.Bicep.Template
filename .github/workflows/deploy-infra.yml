@@ -69,7 +69,7 @@ jobs:
             az role assignment create \
               --assignee-object-id $SQL_SERVER_PRINCIPAL_ID \
               --assignee-principal-type ServicePrincipal \
-              --role "Directory Readers" \
+              --role "Directory.Read.All" \
               --scope /
             
             echo "Successfully configured SQL Server Azure AD settings"
