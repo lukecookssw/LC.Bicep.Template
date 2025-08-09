@@ -8,6 +8,9 @@ var location string = resourceGroup().location
 resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' = {
   name: 'WebApiSqlServer-${environment}'
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     administratorLogin: 'sqlAdmin'
     administratorLoginPassword: 'sqlPW!2@23iuhFDFDaf23987@#%1' // TODO: Replace with a secure password https://fnbk.medium.com/generating-secure-random-passwords-in-azure-bicep-templates-755e962ec639
