@@ -48,5 +48,16 @@ resource aadAdmin 'Microsoft.Sql/servers/administrators@2024-11-01-preview' = {
   }
 }
 
+// Grant Directory Reader role to the SQL Server's managed identity
+resource sqlServerDirectoryReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(sqlServer.id, 'Directory Reader')
+  scope: tenant()
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '88d8e3e3-8f55-4a1e-953a-9b9898b8876b') // Directory Readers role
+    principalId: sqlServer.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 //output sqlConnectionString string = 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=WebApiDb;Persist Security Info=False; Integrated Security=true;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;'
 output sqlConnectionString string = 'Server=tcp:${sqlServer.name}.database.windows.net,1433;Initial Catalog=WebApiDb;Persist Security Info=False;Integrated Security=true;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;'
