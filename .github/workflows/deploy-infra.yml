@@ -50,7 +50,7 @@ jobs:
             echo "Getting user-assigned managed identity details..."
             
             # Get the system-assigned identity's object ID
-            IDENTITY_OBJECT_ID=$(az identity show \
+            IDENTITY_OBJECT_ID=$(az webapp identity show \
               --name "LC-Api-${{ inputs.environment }}" \
               --resource-group "LC.Api.${{ inputs.environment }}" \
               --query principalId \
@@ -59,7 +59,7 @@ jobs:
             echo "Identity Object ID: $IDENTITY_OBJECT_ID"
             
             if [ -z "$IDENTITY_OBJECT_ID" ] || [ "$IDENTITY_OBJECT_ID" = "null" ]; then
-              echo "Error: Could not get user-assigned identity object ID."
+              echo "Error: Could not get system-assigned identity object ID from App Service."
               exit 1
             fi
             
@@ -97,7 +97,7 @@ jobs:
               -Q "$SQL_COMMANDS"
             
             echo "Successfully granted db_owner role to user-assigned identity"
-            
+
   grant-db-owner:
     runs-on: ubuntu-latest
     needs: deploy_infrastructure
