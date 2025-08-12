@@ -82,6 +82,12 @@ jobs:
             
             echo "Executing SQL commands..."
             
+            # Install sqlcmd if not available
+            curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+            curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+            sudo apt-get update
+            sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+            
             # Execute SQL commands
             /opt/mssql-tools/bin/sqlcmd \
               -S "WebApiSqlServer-${{ inputs.environment }}.database.windows.net" \
