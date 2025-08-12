@@ -95,11 +95,66 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      - name: Run PowerShell Script
-        shell: pwsh
-        run: |
-          pwsh ./azure/scripts/grant-db-owner.ps1 `
-            -ResourceGroup "LC.Api.${{ inputs.environment }}" `
-            -SqlServerName "WebApiSqlServer-${{ inputs.environment }}.database.windows.net" `
-            -DatabaseName "WebApiDb" `
-            -PrincipalName "LC-Api-${{ inputs.environment }}"
+      - name: Grant Database Permissions to System-assigned Identity
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            echo "Getting user-assigned managed identity details..."
+            
+            # Get the system-assigned identity's object ID
+            IDENTITY_OBJECT_ID=$(az identity show \
+              --name "LC-Api-${{ inputs.environment }}" \
+              --resource-group "LC.Api.${{ inputs.environment }}" \
+              --query principalId \
+              --output tsv)
+            
+            echo "Identity Object ID: $IDENTITY_OBJECT_ID"
+            
+            if [ -z "$IDENTITY_OBJECT_ID" ] || [ "$IDENTITY_OBJECT_ID" = "null" ]; then
+              echo "Error: Could not get user-assigned identity object ID."
+              exit 1
+            fi
+            
+            # Get access token for SQL Server
+            ACCESS_TOKEN=$(az account get-access-token --resource https://database.windows.net/ --query accessToken --output tsv)
+            
+            if [ -z "$ACCESS_TOKEN" ]; then
+              echo "Error: Could not get access token for SQL Server."
+              exit 1
+            fi
+            
+            # Create SQL commands using the object ID directly
+            SQL_COMMANDS="
+            IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'LC-Api-${{ inputs.environment }}')
+            BEGIN
+                CREATE USER [LC-Api-${{ inputs.environment }}] WITH SID = 0x$(echo -n $IDENTITY_OBJECT_ID | xxd -p), TYPE = E;
+            END
+            ALTER ROLE db_owner ADD MEMBER [LC-Api-${{ inputs.environment }}];
+            "
+            
+            echo "Executing SQL commands..."
+            
+            # Install sqlcmd if not available
+            curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+            curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+            sudo apt-get update
+            sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+            
+            # Execute SQL commands
+            /opt/mssql-tools/bin/sqlcmd \
+              -S "WebApiSqlServer-${{ inputs.environment }}.database.windows.net" \
+              -d "WebApiDb" \
+              -G \
+              -l 30 \
+              -Q "$SQL_COMMANDS"
+            
+            echo "Successfully granted db_owner role to user-assigned identity"
+
+      # - name: Run PowerShell Script
+      #   shell: pwsh
+      #   run: |
+      #     pwsh ./azure/scripts/grant-db-owner.ps1 `
+      #       -ResourceGroup "LC.Api.${{ inputs.environment }}" `
+      #       -SqlServerName "WebApiSqlServer-${{ inputs.environment }}.database.windows.net" `
+      #       -DatabaseName "WebApiDb" `
+      #       -PrincipalName "LC-Api-${{ inputs.environment }}"
