@@ -43,58 +43,6 @@ jobs:
               --template-file ./azure/main.bicep \
               --parameters environment=${{ inputs.environment }}
      
-      - name: Configure SQL Server Azure AD Admin and Directory Reader
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            echo "Getting SQL Server managed identity..."
-            
-            # Get the SQL Server's managed identity
-            SQL_SERVER_PRINCIPAL_ID=$(az sql server show \
-              --name "WebApiSqlServer-${{ inputs.environment }}" \
-              --resource-group "LC.Api.${{ inputs.environment }}" \
-              --query identity.principalId \
-              --output tsv)
-            
-            echo "SQL Server Principal ID: $SQL_SERVER_PRINCIPAL_ID"
-            
-            # Check if we got a valid principal ID
-            if [ -z "$SQL_SERVER_PRINCIPAL_ID" ] || [ "$SQL_SERVER_PRINCIPAL_ID" = "null" ]; then
-              echo "Error: Could not get SQL Server principal ID."
-              exit 1
-            fi
-            
-            # Grant Directory Readers role to SQL Server's managed identity
-            echo "Granting Directory Readers role to SQL Server managed identity..."
-            az role assignment create \
-              --assignee-object-id $SQL_SERVER_PRINCIPAL_ID \
-              --assignee-principal-type ServicePrincipal \
-              --role "Directory Readers" \
-              --scope /
-            
-            echo "Successfully configured SQL Server Azure AD settings"
-  grant-db-owner:
-    runs-on: ubuntu-latest
-    needs: deploy_infrastructure
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install PowerShell
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https software-properties-common
-          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
-          sudo dpkg -i packages-microsoft-prod.deb
-          sudo apt-get update
-          sudo apt-get install -y powershell
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          allow-no-subscriptions: true
-
       - name: Grant Database Permissions to System-assigned Identity
         uses: azure/cli@v2
         with:
@@ -149,6 +97,30 @@ jobs:
               -Q "$SQL_COMMANDS"
             
             echo "Successfully granted db_owner role to user-assigned identity"
+            
+  grant-db-owner:
+    runs-on: ubuntu-latest
+    needs: deploy_infrastructure
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install PowerShell
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          allow-no-subscriptions: true
+
+      
 
       # - name: Run PowerShell Script
       #   shell: pwsh
