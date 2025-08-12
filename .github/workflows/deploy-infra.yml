@@ -80,7 +80,7 @@ jobs:
             SQL_COMMANDS="
             IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'LC-Api-${{ inputs.environment }}')
             BEGIN
-                CREATE USER [LC-Api-${{ inputs.environment }}] WITH SID = 0x$(echo -n $IDENTITY_OBJECT_ID | xxd -p), TYPE = E;
+                CREATE USER [LC-Api-${{ inputs.environment }}] FROM EXTERNAL PROVIDER;
             END
             ALTER ROLE db_owner ADD MEMBER [LC-Api-${{ inputs.environment }}];
             "
